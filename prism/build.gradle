@@ -1,15 +1,16 @@
 plugins {
     id 'io.franzbecker.gradle-lombok' version '2.0'
+    id "com.google.protobuf" version "0.8.10"
     id 'java'
 }
-group 'mojo'
+group 'prism'
 version '1.0-SNAPSHOT'
 
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'eclipse'
 apply plugin: 'application'
-//apply plugin: 'com.google.protobuf'
+apply plugin: 'com.google.protobuf'
 
 sourceCompatibility = 1.8
 
@@ -25,6 +26,8 @@ repositories {
     }
 }
 dependencies {
+
+//    classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.10' //protobuf plugin dependency
 
     // Local dependencies
     compile fileTree(dir: 'lib', include: '*.jar')
@@ -52,12 +55,31 @@ dependencies {
 sourceSets {
     main {
         java {
-            srcDirs 'src' 
+            srcDir 'src'
+        }
+        proto{
+            srcDir 'proto'
         }
         resources {
             srcDirs = ['lib']
         }
     }
+}
+protobuf {
+    protoc {
+        // The artifact spec for the Protobuf Compiler
+        artifact = 'com.google.protobuf:protoc:3.0.0'
+    }
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                // Generates Python code in the output folder:
+                python { }
+
+                // If you wish to avoid generating Java files:
+//                remove java
+            }
+        }}
 }
 task runGui(type: JavaExec, dependsOn: classes) {
     main = 'GUI.Main'

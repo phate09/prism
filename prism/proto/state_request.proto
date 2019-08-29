@@ -1,0 +1,12 @@
+syntax = "proto3";
+package prism;
+
+message StateFloat {
+    repeated double value = 1;
+}
+message StringVarNames {
+    repeated string value = 1;
+}
+//message VarList{
+//    repeated string name = 1;
+//}
