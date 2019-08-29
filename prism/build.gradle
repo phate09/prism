@@ -49,6 +49,16 @@ dependencies {
 
 
 }
+sourceSets {
+    main {
+        java {
+            srcDirs 'src' 
+        }
+        resources {
+            srcDirs = ['lib']
+        }
+    }
+}
 task runGui(type: JavaExec, dependsOn: classes) {
     main = 'GUI.Main'
     systemProperties['mojo.dir'] = "$projectDir"
