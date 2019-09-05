@@ -144,10 +144,11 @@ class PythonWrapper implements ModelGenerator, RewardGenerator {
 	}
 
 	private StateRequest.StateFloat stateToProtobuf(State exploreState) {
-		StateRequest.StateFloat stateFloat = StateRequest.StateFloat.getDefaultInstance();
+		StateRequest.StateFloat.Builder builder = StateRequest.StateFloat.newBuilder();
 		for (int i = 0; i < exploreState.varValues.length; i++) {
-			stateFloat.getValueList().add((double) (exploreState.varValues[i])); //todo cast to double, needs to accommodate arbitrary type
+			builder.addValue((double) (exploreState.varValues[i])); //todo cast to double, needs to accommodate arbitrary type
 		}
+		StateRequest.StateFloat stateFloat = builder.build();
 		return stateFloat;
 	}
 
@@ -175,7 +176,7 @@ class PythonWrapper implements ModelGenerator, RewardGenerator {
 	@Override
 	public double getTransitionProbability(int i, int offset) throws PrismException {
 		socket_req.sendMore("getTransitionProbability");
-		socket_req.send(String.valueOf(i));
+		socket_req.sendMore(String.valueOf(i));
 		socket_req.send(String.valueOf(offset));
 		final String recv = socket_req.recvStr();
 		return Double.parseDouble(recv);
@@ -184,7 +185,7 @@ class PythonWrapper implements ModelGenerator, RewardGenerator {
 	@Override
 	public State computeTransitionTarget(int i, int offset) throws PrismException {
 		socket_req.sendMore("computeTransitionTarget");
-		socket_req.send(String.valueOf(i));
+		socket_req.sendMore(String.valueOf(i));
 		socket_req.send(String.valueOf(offset));
 		final byte[] recv = socket_req.recv();//receives next state
 		return parseState(recv);
@@ -192,7 +193,7 @@ class PythonWrapper implements ModelGenerator, RewardGenerator {
 
 	@Override
 	public boolean isLabelTrue(int i) throws PrismException {
-		socket_req.sendMore("computeTransitionTarget");
+		socket_req.sendMore("isLabelTrue");
 		socket_req.send(String.valueOf(i));
 		final String recv = socket_req.recvStr();
 		return Boolean.parseBoolean(recv);
@@ -253,7 +254,7 @@ class PythonWrapper implements ModelGenerator, RewardGenerator {
 	public double getStateActionReward(int r, State state, Object action) throws PrismException {
 		// No action rewards
 		StateRequest.StateFloat stateFloat = stateToProtobuf(state);
-		socket_req.sendMore("getStateReward");
+		socket_req.sendMore("getStateActionReward");
 		socket_req.sendMore(stateFloat.toByteArray());
 		socket_req.send(action.toString());
 		final String recv = socket_req.recvStr();
