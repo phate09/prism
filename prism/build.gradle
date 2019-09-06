@@ -57,15 +57,15 @@ sourceSets {
         java {
             srcDir 'src'
         }
-        proto{
+        proto {
             srcDir 'proto'
         }
         resources {
             srcDirs = ['lib']
         }
     }
-    test{
-        java{
+    test {
+        java {
             srcDir 'test'
         }
     }
@@ -79,12 +79,13 @@ protobuf {
         all().each { task ->
             task.builtins {
                 // Generates Python code in the output folder:
-                python { }
+                python {}
 
                 // If you wish to avoid generating Java files:
 //                remove java
             }
-        }}
+        }
+    }
 }
 task runGui(type: JavaExec, dependsOn: classes) {
     main = 'GUI.Main'
@@ -96,9 +97,26 @@ task runGui(type: JavaExec, dependsOn: classes) {
         environment("LD_LIBRARY_PATH", "$projectDir/lib/prism")
     }
 }
-
+task runDTMCModelGeneratorPython(type: JavaExec) {
+    // Executable jars can have only _one_ jar on the classpath.
+    main = 'server.DTMCModelGeneratorPython'
+    classpath = sourceSets.main.runtimeClasspath
+    if (org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
+        environment("DYLD_LIBRARY_PATH", "$projectDir/lib")
+    } else {
+        environment("LD_LIBRARY_PATH", "$projectDir/lib")
+    }
+}
+run{
+    main = 'server.DTMCModelGeneratorPython'
+    if (org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
+        environment("DYLD_LIBRARY_PATH", "$projectDir/lib")
+    } else {
+        environment("LD_LIBRARY_PATH", "$projectDir/lib")
+    }
+}
 // Set a main class so we can use the 'Application' plugin to create distributions / launch scripts
-mainClassName = 'GUI.Main'
+mainClassName = 'server.DTMCModelGeneratorPython'
 
 startScripts {
     doLast {
