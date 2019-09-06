@@ -4,6 +4,9 @@ package prism;
 message StateFloat {
     repeated double value = 1;
 }
+message StateInt {
+    repeated int32 value = 1;
+}
 message StringVarNames {
     repeated string value = 1;
 }

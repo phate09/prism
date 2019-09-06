@@ -139,7 +139,7 @@ class PythonWrapper implements ModelGenerator, RewardGenerator {
 	@Override
 	public void exploreState(State exploreState) throws PrismException {
 		// Store the state (for reference, and because will clone/copy it later)
-		StateRequest.StateFloat stateFloat = stateToProtobuf(exploreState);
+		StateRequest.StateInt stateFloat = stateToProtobuf(exploreState);
 		socket_req.sendMore("exploreState");
 		socket_req.send(stateFloat.toByteArray());
 		socket_req.recv(); //discard acknowledge message
@@ -184,7 +184,8 @@ class PythonWrapper implements ModelGenerator, RewardGenerator {
 		socket_req.sendMore(String.valueOf(i));
 		socket_req.send(String.valueOf(offset));
 		final byte[] recv = socket_req.recv();//receives next state
-		return parseState(recv);
+		final State state = parseState(recv);
+		return state;
 	}
 
 	@Override
@@ -199,7 +200,7 @@ class PythonWrapper implements ModelGenerator, RewardGenerator {
 	private State parseState(byte[] recv) {
 		State new_state = new State(getVarNames().size());
 		try {
-			StateRequest.StateFloat stateFloat = StateRequest.StateFloat.parseFrom(recv);
+			StateRequest.StateInt stateFloat = StateRequest.StateInt.parseFrom(recv);
 			for (int j = 0; j < stateFloat.getValueCount(); j++) {
 				new_state.setValue(j, stateFloat.getValue(j));
 			}
@@ -209,12 +210,12 @@ class PythonWrapper implements ModelGenerator, RewardGenerator {
 		}
 		return new_state;
 	}
-	private StateRequest.StateFloat stateToProtobuf(State exploreState) {
-		StateRequest.StateFloat.Builder builder = StateRequest.StateFloat.newBuilder();
+	private StateRequest.StateInt stateToProtobuf(State exploreState) {
+		StateRequest.StateInt.Builder builder = StateRequest.StateInt.newBuilder();
 		for (int i = 0; i < exploreState.varValues.length; i++) {
-			builder.addValue((double) (exploreState.varValues[i])); //todo cast to double, needs to accommodate arbitrary type
+			builder.addValue((int) (exploreState.varValues[i]));
 		}
-		StateRequest.StateFloat stateFloat = builder.build();
+		StateRequest.StateInt stateFloat = builder.build();
 		return stateFloat;
 	}
 	// Methods for RewardGenerator interface (reward info stored separately from ModelInfo/ModelGenerator)
@@ -247,7 +248,7 @@ class PythonWrapper implements ModelGenerator, RewardGenerator {
 		// r will only ever be 0 (because there is one reward structure)
 		// We assume it assigns 1 to all states.
 
-		StateRequest.StateFloat stateFloat = stateToProtobuf(state);
+		StateRequest.StateInt stateFloat = stateToProtobuf(state);
 		socket_req.sendMore("getStateReward");
 		socket_req.send(stateFloat.toByteArray());
 		final String recv = socket_req.recvStr();
@@ -257,7 +258,7 @@ class PythonWrapper implements ModelGenerator, RewardGenerator {
 	@Override
 	public double getStateActionReward(int r, State state, Object action) throws PrismException {
 		// No action rewards
-		StateRequest.StateFloat stateFloat = stateToProtobuf(state);
+		StateRequest.StateInt stateFloat = stateToProtobuf(state);
 		socket_req.sendMore("getStateActionReward");
 		socket_req.sendMore(stateFloat.toByteArray());
 		socket_req.send(action!=null?action.toString():"null");
