@@ -6,6 +6,9 @@ import org.zeromq.SocketType;
 import org.zeromq.ZMQ;
 import parser.State;
 import parser.VarList;
+import parser.ast.Declaration;
+import parser.ast.DeclarationInt;
+import parser.ast.Expression;
 import parser.type.Type;
 import parser.type.TypeInt;
 import prism.*;
@@ -117,11 +120,11 @@ class PythonWrapper implements ModelGenerator, RewardGenerator {
 	public VarList createVarList() {
 		// Need to give the variable list containing the declaration of variable x
 		VarList varList = new VarList();
-//
-//		try {
-//			varList.addVar(new Declaration("x", new DeclarationInt(Expression.Int(-n), Expression.Int(n))), 0, null);
-//		} catch (PrismLangException e) {
-//		}
+
+		try {
+			varList.addVar(new Declaration("x", new DeclarationInt(Expression.Int(-10), Expression.Int(10))), 0, null);
+		} catch (PrismLangException e) {
+		}
 		return varList;
 	}
 
@@ -143,14 +146,7 @@ class PythonWrapper implements ModelGenerator, RewardGenerator {
 
 	}
 
-	private StateRequest.StateFloat stateToProtobuf(State exploreState) {
-		StateRequest.StateFloat.Builder builder = StateRequest.StateFloat.newBuilder();
-		for (int i = 0; i < exploreState.varValues.length; i++) {
-			builder.addValue((double) (exploreState.varValues[i])); //todo cast to double, needs to accommodate arbitrary type
-		}
-		StateRequest.StateFloat stateFloat = builder.build();
-		return stateFloat;
-	}
+
 
 	@Override
 	public int getNumChoices() throws PrismException {
@@ -213,6 +209,14 @@ class PythonWrapper implements ModelGenerator, RewardGenerator {
 		}
 		return new_state;
 	}
+	private StateRequest.StateFloat stateToProtobuf(State exploreState) {
+		StateRequest.StateFloat.Builder builder = StateRequest.StateFloat.newBuilder();
+		for (int i = 0; i < exploreState.varValues.length; i++) {
+			builder.addValue((double) (exploreState.varValues[i])); //todo cast to double, needs to accommodate arbitrary type
+		}
+		StateRequest.StateFloat stateFloat = builder.build();
+		return stateFloat;
+	}
 	// Methods for RewardGenerator interface (reward info stored separately from ModelInfo/ModelGenerator)
 
 	// There is a single reward structure, r, which just assigns reward 1 to every state.
@@ -256,7 +260,7 @@ class PythonWrapper implements ModelGenerator, RewardGenerator {
 		StateRequest.StateFloat stateFloat = stateToProtobuf(state);
 		socket_req.sendMore("getStateActionReward");
 		socket_req.sendMore(stateFloat.toByteArray());
-		socket_req.send(action.toString());
+		socket_req.send(action!=null?action.toString():"null");
 		final String recv = socket_req.recvStr();
 		return Double.parseDouble(recv);
 	}

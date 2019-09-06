@@ -64,6 +64,11 @@ sourceSets {
             srcDirs = ['lib']
         }
     }
+    test{
+        java{
+            srcDir 'test'
+        }
+    }
 }
 protobuf {
     protoc {

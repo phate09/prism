@@ -65,7 +65,7 @@ public class DTMCModelGeneratorPython
 			// Load the model generator into PRISM,
 			// export the model to a dot file (which triggers its construction)
 			prism.loadModelGenerator(modelGen);
-			prism.exportTransToFile(true, Prism.EXPORT_DOT_STATES, new File("dtmc.dot"));
+//			prism.exportTransToFile(true, Prism.EXPORT_DOT_STATES, new File("dtmc.dot"));
 
 			// Then do some model checking and print the result
 			String[] props = new String[] {
@@ -83,9 +83,9 @@ public class DTMCModelGeneratorPython
 			// Close down PRISM
 			prism.closeDown();
 
-		} catch (FileNotFoundException e) {
-			System.out.println("Error: " + e.getMessage());
-			System.exit(1);
+//		} catch (FileNotFoundException e) {
+//			System.out.println("Error: " + e.getMessage());
+//			System.exit(1);
 		} catch (PrismException e) {
 			System.out.println("Error: " + e.getMessage());
 			System.exit(1);
