@@ -10,6 +10,8 @@ message StateInt {
 message StringVarNames {
     repeated string value = 1;
 }
-//message VarList{
-//    repeated string name = 1;
-//}
+message CartPoleState {
+    int32 t = 1;
+    repeated int32 name = 2;
+    bool done = 3;
+}

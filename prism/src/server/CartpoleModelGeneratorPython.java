@@ -28,9 +28,6 @@ package server;
 
 import prism.*;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-
 /**
  * An example class demonstrating how to control PRISM programmatically,
  * through the functions exposed by the class prism.Prism.
@@ -40,9 +37,9 @@ import java.io.FileNotFoundException;
  * <p>
  * See the README for how to link this to PRISM.
  */
-public class DTMCModelGeneratorPython {
+public class CartpoleModelGeneratorPython {
 	public static void main(String[] args) {
-		new DTMCModelGeneratorPython().run();
+		new CartpoleModelGeneratorPython().run();
 	}
 
 	public void run() {
@@ -57,7 +54,7 @@ public class DTMCModelGeneratorPython {
 
 			// Create a model generator to specify the model that PRISM should build
 			// (in this case a simple random walk)
-			PythonWrapper modelGen = new PythonWrapper("tcp://localhost:5558");
+			CartpolePythonWrapper modelGen = new CartpolePythonWrapper("tcp://localhost:5558");
 
 			// Load the model generator into PRISM,
 			// export the model to a dot file (which triggers its construction)

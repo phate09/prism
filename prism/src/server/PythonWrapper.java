@@ -23,12 +23,12 @@ import java.util.List;
  * the value is p (n and p are both parameters).
  */
 class PythonWrapper implements ModelGenerator, RewardGenerator {
-	private ZMQ.Context _context;
-	private ZMQ.Socket socket_req;
-	private List<Type> _types = null;
-	private List<String> _varNames;
-	private List<String> _labelNames;
-	private List<String> _rewardStructNames;
+	protected ZMQ.Context _context;
+	protected ZMQ.Socket socket_req;
+	protected List<Type> _types = null;
+	protected List<String> _varNames;
+	protected List<String> _labelNames;
+	protected List<String> _rewardStructNames;
 
 	public PythonWrapper(String _address) {
 		_context = ZMQ.context(2);
@@ -120,10 +120,12 @@ class PythonWrapper implements ModelGenerator, RewardGenerator {
 	public VarList createVarList() {
 		// Need to give the variable list containing the declaration of variable x
 		VarList varList = new VarList();
-
 		try {
-			varList.addVar(new Declaration("x", new DeclarationInt(Expression.Int(-10), Expression.Int(10))), 0, null);
+			for (String x : getVarNames()) {
+				varList.addVar(new Declaration(x, new DeclarationInt(Expression.Int(-10), Expression.Int(10))), 0, null);
+			}
 		} catch (PrismLangException e) {
+			System.out.println(e.getMessage());
 		}
 		return varList;
 	}
@@ -145,7 +147,6 @@ class PythonWrapper implements ModelGenerator, RewardGenerator {
 		socket_req.recv(); //discard acknowledge message
 
 	}
-
 
 
 	@Override
@@ -196,6 +197,15 @@ class PythonWrapper implements ModelGenerator, RewardGenerator {
 		return Boolean.parseBoolean(recv);
 	}
 
+	private StateRequest.StateInt stateToProtobuf(State exploreState) {
+		StateRequest.StateInt.Builder builder = StateRequest.StateInt.newBuilder();
+		for (int i = 0; i < exploreState.varValues.length; i++) {
+			builder.addValue((int) (exploreState.varValues[i]));
+		}
+		StateRequest.StateInt stateFloat = builder.build();
+		return stateFloat;
+	}
+
 	///parse a state from protobuf
 	private State parseState(byte[] recv) {
 		State new_state = new State(getVarNames().size());
@@ -210,19 +220,10 @@ class PythonWrapper implements ModelGenerator, RewardGenerator {
 		}
 		return new_state;
 	}
-	private StateRequest.StateInt stateToProtobuf(State exploreState) {
-		StateRequest.StateInt.Builder builder = StateRequest.StateInt.newBuilder();
-		for (int i = 0; i < exploreState.varValues.length; i++) {
-			builder.addValue((int) (exploreState.varValues[i]));
-		}
-		StateRequest.StateInt stateFloat = builder.build();
-		return stateFloat;
-	}
 	// Methods for RewardGenerator interface (reward info stored separately from ModelInfo/ModelGenerator)
 
 	// There is a single reward structure, r, which just assigns reward 1 to every state.
 	// We can use this to reason about the expected number of steps that occur through the random walk.
-
 
 	@Override
 	public List<String> getRewardStructNames() {
@@ -261,7 +262,7 @@ class PythonWrapper implements ModelGenerator, RewardGenerator {
 		StateRequest.StateInt stateFloat = stateToProtobuf(state);
 		socket_req.sendMore("getStateActionReward");
 		socket_req.sendMore(stateFloat.toByteArray());
-		socket_req.send(action!=null?action.toString():"null");
+		socket_req.send(action != null ? action.toString() : "null");
 		final String recv = socket_req.recvStr();
 		return Double.parseDouble(recv);
 	}
