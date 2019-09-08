@@ -132,7 +132,6 @@ class PythonWrapper implements ModelGenerator, RewardGenerator {
 
 	@Override
 	public State getInitialState() throws PrismException {
-		State new_state = new State(getVarNames().size());
 		socket_req.send("getInitialState");
 		final byte[] recv = socket_req.recv();
 		return parseState(recv);

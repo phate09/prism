@@ -34,10 +34,12 @@ class CartpolePythonWrapper extends PythonWrapper implements ModelGenerator, Rew
 	public VarList createVarList() {
 		// Need to give the variable list containing the declaration of variable x
 		VarList varList = new VarList();
-
 		try {
-			varList.addVar(new Declaration("x", new DeclarationInt(Expression.Int(-10), Expression.Int(10))), 0, null);
+			for (String x : getVarNames()) {
+				varList.addVar(new Declaration(x, new DeclarationInt(Expression.Int(-10), Expression.Int(10))), 0, null);
+			}
 		} catch (PrismLangException e) {
+			System.out.println(e.getMessage());
 		}
 		return varList;
 	}
@@ -53,7 +55,7 @@ class CartpolePythonWrapper extends PythonWrapper implements ModelGenerator, Rew
 	@Override
 	public void exploreState(State exploreState) throws PrismException {
 		// Store the state (for reference, and because will clone/copy it later)
-		StateRequest.StateInt stateFloat = stateToProtobuf(exploreState);
+		StateRequest.CartPoleState stateFloat = stateToProtobuf(exploreState);
 		socket_req.sendMore("exploreState");
 		socket_req.send(stateFloat.toByteArray());
 		socket_req.recv(); //discard acknowledge message
@@ -70,35 +72,12 @@ class CartpolePythonWrapper extends PythonWrapper implements ModelGenerator, Rew
 		return state;
 	}
 
-	///parse a state from protobuf
-	private State parseState(byte[] recv) {
-		State new_state = new State(getVarNames().size());
-		try {
-			StateRequest.StateInt stateFloat = StateRequest.StateInt.parseFrom(recv);
-			for (int j = 0; j < stateFloat.getValueCount(); j++) {
-				new_state.setValue(j, stateFloat.getValue(j));
-			}
-			return new_state;
-		} catch (InvalidProtocolBufferException e) {
-			e.printStackTrace();
-		}
-		return new_state;
-	}
-	private StateRequest.StateInt stateToProtobuf(State exploreState) {
-		StateRequest.StateInt.Builder builder = StateRequest.StateInt.newBuilder();
-		for (int i = 0; i < exploreState.varValues.length; i++) {
-			builder.addValue((int) (exploreState.varValues[i]));
-		}
-		StateRequest.StateInt stateFloat = builder.build();
-		return stateFloat;
-	}
-
 	@Override
 	public double getStateReward(int r, State state) throws PrismException {
 		// r will only ever be 0 (because there is one reward structure)
 		// We assume it assigns 1 to all states.
 
-		StateRequest.StateInt stateFloat = stateToProtobuf(state);
+		StateRequest.CartPoleState stateFloat = stateToProtobuf(state);
 		socket_req.sendMore("getStateReward");
 		socket_req.send(stateFloat.toByteArray());
 		final String recv = socket_req.recvStr();
@@ -108,11 +87,37 @@ class CartpolePythonWrapper extends PythonWrapper implements ModelGenerator, Rew
 	@Override
 	public double getStateActionReward(int r, State state, Object action) throws PrismException {
 		// No action rewards
-		StateRequest.StateInt stateFloat = stateToProtobuf(state);
+		StateRequest.CartPoleState stateFloat = stateToProtobuf(state);
 		socket_req.sendMore("getStateActionReward");
 		socket_req.sendMore(stateFloat.toByteArray());
-		socket_req.send(action!=null?action.toString():"null");
+		socket_req.send(action != null ? action.toString() : "null");
 		final String recv = socket_req.recvStr();
 		return Double.parseDouble(recv);
+	}
+
+	private StateRequest.CartPoleState stateToProtobuf(State exploreState) {
+		StateRequest.CartPoleState.Builder builder = StateRequest.CartPoleState.newBuilder();
+		builder.setT((int) exploreState.varValues[0]);
+		for (int i = 1; i < exploreState.varValues.length; i++) {
+			builder.addValue((int) (exploreState.varValues[i]));
+		}
+		StateRequest.CartPoleState stateFloat = builder.build();
+		return stateFloat;
+	}
+
+	///parse a state from protobuf
+	private State parseState(byte[] recv) {
+		State new_state = new State(getVarNames().size());
+		try {
+			StateRequest.CartPoleState stateFloat = StateRequest.CartPoleState.parseFrom(recv);
+			new_state.setValue(0, stateFloat.getT());//sets the time step value
+			for (int j = 0; j < stateFloat.getValueCount(); j++) {
+				new_state.setValue(j + 1, stateFloat.getValue(j));
+			}
+			return new_state;
+		} catch (InvalidProtocolBufferException e) {
+			e.printStackTrace();
+		}
+		return new_state;
 	}
 }

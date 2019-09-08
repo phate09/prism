@@ -12,6 +12,6 @@ message StringVarNames {
 }
 message CartPoleState {
     int32 t = 1;
-    repeated int32 name = 2;
+    repeated int32 value = 2;
     bool done = 3;
 }

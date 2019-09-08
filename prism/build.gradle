@@ -87,19 +87,19 @@ protobuf {
         }
     }
 }
-task runGui(type: JavaExec, dependsOn: classes) {
-    main = 'GUI.Main'
-    systemProperties['mojo.dir'] = "$projectDir"
-    classpath sourceSets.main.runtimeClasspath
-    if (org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
-        environment("DYLD_LIBRARY_PATH", "$projectDir/lib/prism")
-    } else {
-        environment("LD_LIBRARY_PATH", "$projectDir/lib/prism")
-    }
-}
 task runDTMCModelGeneratorPython(type: JavaExec) {
     // Executable jars can have only _one_ jar on the classpath.
     main = 'server.DTMCModelGeneratorPython'
+    classpath = sourceSets.main.runtimeClasspath
+    if (org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
+        environment("DYLD_LIBRARY_PATH", "$projectDir/lib")
+    } else {
+        environment("LD_LIBRARY_PATH", "$projectDir/lib")
+    }
+}
+task runCartpoleModelGeneratorPython(type: JavaExec) {
+    // Executable jars can have only _one_ jar on the classpath.
+    main = 'server.CartpoleModelGeneratorPython'
     classpath = sourceSets.main.runtimeClasspath
     if (org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
         environment("DYLD_LIBRARY_PATH", "$projectDir/lib")
