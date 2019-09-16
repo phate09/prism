@@ -105,6 +105,7 @@ task runCartpoleModelGeneratorPython(type: JavaExec) {
         environment("DYLD_LIBRARY_PATH", "$projectDir/lib")
     } else {
         environment("LD_LIBRARY_PATH", "$projectDir/lib")
+//        environment("LD_PRELOAD", "libufs.so")
     }
 }
 run{

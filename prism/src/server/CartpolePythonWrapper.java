@@ -98,7 +98,8 @@ class CartpolePythonWrapper extends PythonWrapper implements ModelGenerator, Rew
 	private StateRequest.CartPoleState stateToProtobuf(State exploreState) {
 		StateRequest.CartPoleState.Builder builder = StateRequest.CartPoleState.newBuilder();
 		builder.setT((int) exploreState.varValues[0]);
-		for (int i = 1; i < exploreState.varValues.length; i++) {
+		builder.setDone(((int) exploreState.varValues[1]) == 1);
+		for (int i = 2; i < exploreState.varValues.length; i++) {
 			builder.addValue((int) (exploreState.varValues[i]));
 		}
 		StateRequest.CartPoleState stateFloat = builder.build();
@@ -111,13 +112,19 @@ class CartpolePythonWrapper extends PythonWrapper implements ModelGenerator, Rew
 		try {
 			StateRequest.CartPoleState stateFloat = StateRequest.CartPoleState.parseFrom(recv);
 			new_state.setValue(0, stateFloat.getT());//sets the time step value
+			new_state.setValue(1, stateFloat.getDone() ? 1 : 0);//sets the done flag
 			for (int j = 0; j < stateFloat.getValueCount(); j++) {
-				new_state.setValue(j + 1, stateFloat.getValue(j));
+				new_state.setValue(j + 2, stateFloat.getValue(j));
 			}
 			return new_state;
 		} catch (InvalidProtocolBufferException e) {
 			e.printStackTrace();
 		}
 		return new_state;
+	}
+
+	@Override
+	public boolean rewardStructHasTransitionRewards(int r) {
+		return false;
 	}
 }

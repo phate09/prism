@@ -45,8 +45,8 @@ public class CartpoleModelGeneratorPython {
 	public void run() {
 		try {
 			// Create a log for PRISM output (hidden or stdout)
-			PrismLog mainLog = new PrismDevNullLog();
-			//PrismLog mainLog = new PrismFileLog("stdout");
+//			PrismLog mainLog = new PrismDevNullLog();
+			PrismLog mainLog = new PrismFileLog("stdout");
 
 			// Initialise PRISM engine 
 			Prism prism = new Prism(mainLog);
@@ -59,13 +59,17 @@ public class CartpoleModelGeneratorPython {
 			// Load the model generator into PRISM,
 			// export the model to a dot file (which triggers its construction)
 			prism.loadModelGenerator(modelGen);
+			prism.setEngine(Prism.EXPLICIT);
 //			prism.exportTransToFile(true, Prism.EXPORT_DOT_STATES, new File("dtmc.dot"));
 
 			// Then do some model checking and print the result
 			String[] props = new String[]{
+					"P=?[F \"failed\"]",
 					"P=?[F \"done\"]",
-					"P=?[F<=10 \"done\"]",
-					"R=?[F \"done\"]"
+//					"P=?[F<=20 \"failed\"]",
+//					"P=?[F<=40 \"done\"]",
+//					"R=?[F \"done\"]",
+					"R=?[F \"failed\"|\"done\"]",
 			};
 			for (String prop : props) {
 				System.out.println(prop + ":");
