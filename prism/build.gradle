@@ -109,7 +109,7 @@ task runCartpoleModelGeneratorPython(type: JavaExec) {
     }
 }
 run{
-    main = 'server.DTMCModelGeneratorPython'
+    main = 'server.CartpoleModelGeneratorPython'
     if (org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
         environment("DYLD_LIBRARY_PATH", "$projectDir/lib")
     } else {
