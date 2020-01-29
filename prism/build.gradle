@@ -118,8 +118,16 @@ run{
         environment("LD_LIBRARY_PATH", "$projectDir/lib")
     }
 }
+run{
+    main = 'server.MdpAbstract'
+    if (org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
+        environment("DYLD_LIBRARY_PATH", "$projectDir/lib")
+    } else {
+        environment("LD_LIBRARY_PATH", "$projectDir/lib")
+    }
+}
 // Set a main class so we can use the 'Application' plugin to create distributions / launch scripts
-mainClassName = 'server.DTMCModelGeneratorPython'
+mainClassName = 'server.MdpAbstract'
 
 startScripts {
     doLast {
