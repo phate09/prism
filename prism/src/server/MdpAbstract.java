@@ -24,10 +24,13 @@ public class MdpAbstract {
 		gatewayServer.start();
 		System.out.println("MDP Server Started");
 	}
-
 	public MDPSimple getMdpSimple() {
 		System.out.println("New connnection");
 		return mdpSimple;
+	}
+	public void reset_mdp(){
+		System.out.println("Reset mdp");
+		mdpSimple = new MDPSimple();
 	}
 
 	public Distribution generateDistribution(int successor1, int successor2) {
