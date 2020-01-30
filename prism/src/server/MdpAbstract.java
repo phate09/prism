@@ -69,7 +69,7 @@ public class MdpAbstract {
 				checker.setSettings(new PrismSettings());
 			BitSet bitSet = new BitSet();
 			bitSet.set(state_number);
-			final ModelCheckerResult modelCheckerResult = checker.computeReachProbs(mdpSimple, bitSet, true);
+			final ModelCheckerResult modelCheckerResult = checker.computeReachProbs(mdpSimple, bitSet, false);
 			return modelCheckerResult.soln;
 		} catch (PrismException e) {
 			e.printStackTrace();
