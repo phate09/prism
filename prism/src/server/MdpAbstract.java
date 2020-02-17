@@ -24,11 +24,13 @@ public class MdpAbstract {
 		gatewayServer.start();
 		System.out.println("MDP Server Started");
 	}
+
 	public MDPSimple getMdpSimple() {
 		System.out.println("New connnection");
 		return mdpSimple;
 	}
-	public void reset_mdp(){
+
+	public void reset_mdp() {
 		System.out.println("Reset mdp");
 		mdpSimple = new MDPSimple();
 	}
@@ -77,21 +79,33 @@ public class MdpAbstract {
 		return null;
 	}
 
-	public double[] check_state_list(int[] target_states_id) {
+	public double[] check_state_list(List<Integer> target_states_id,boolean min) {
 		try {
 			if (mdpSimple.getNumInitialStates() == 0)
 				mdpSimple.addInitialState(0);
 			mdpSimple.findDeadlocks(true);
 			MDPModelChecker checker = new MDPModelChecker(null);
+			if (checker.getSettings() == null)
+				checker.setSettings(new PrismSettings());
 			BitSet bitSet = new BitSet();
 			for (int i : target_states_id) {
 				bitSet.set(i);
 			}
-			final ModelCheckerResult modelCheckerResult = checker.computeReachProbs(mdpSimple, bitSet, true);
+			final ModelCheckerResult modelCheckerResult = checker.computeReachProbs(mdpSimple, bitSet, min);
 			return modelCheckerResult.soln;
 		} catch (PrismException e) {
 			e.printStackTrace();
+			System.out.println(e.toString());
 		}
+		System.out.println("Failed");
 		return null;
+	}
+
+	public void update_fail_label_list(List<Integer> target_states_id) {
+		BitSet bitSet = new BitSet();
+		for (int i : target_states_id) {
+			bitSet.set(i);
+		}
+		mdpSimple.addLabel("fail", bitSet);
 	}
 }
