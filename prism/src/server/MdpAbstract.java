@@ -10,7 +10,9 @@ import prism.PrismSettings;
 import py4j.GatewayServer;
 
 import java.util.BitSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 public class MdpAbstract {
 	private MDPSimple mdpSimple;
@@ -79,7 +81,7 @@ public class MdpAbstract {
 		return null;
 	}
 
-	public double[] check_state_list(List<Integer> target_states_id,boolean min) {
+	public double[] check_state_list(List<Integer> target_states_id, boolean min) {
 		try {
 			if (mdpSimple.getNumInitialStates() == 0)
 				mdpSimple.addInitialState(0);
@@ -107,5 +109,22 @@ public class MdpAbstract {
 			bitSet.set(i);
 		}
 		mdpSimple.addLabel("fail", bitSet);
+	}
+
+	public void purge_states(int parent_id,List<Integer> target_states_id) {
+		Queue<Integer> queue = new LinkedList<Integer>(target_states_id);
+		while (queue.size() != 0) {
+			int state = queue.remove();
+			mdpSimple.clearState(state);
+			List<Distribution> choices = mdpSimple.getChoices(parent_id);
+			//removes the action leading to the current state from the parent
+			for (Distribution choice:choices){
+				if (choice.contains(state))
+				{
+					choices.remove(choice);
+					break;
+				}
+			}
+		}
 	}
 }
