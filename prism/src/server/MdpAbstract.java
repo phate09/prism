@@ -32,9 +32,10 @@ public class MdpAbstract {
 		return mdpSimple;
 	}
 
-	public void reset_mdp() {
+	public MDPSimple reset_mdp() {
 		System.out.println("Reset mdp");
 		mdpSimple = new MDPSimple();
+		return mdpSimple;
 	}
 
 	public Distribution generateDistribution(int successor1, int successor2) {
@@ -62,7 +63,9 @@ public class MdpAbstract {
 			e.printStackTrace();
 		}
 	}
-
+	public void add_states(int n){
+		mdpSimple.addStates(n);
+	}
 	public double[] check_property(int state_number) {
 		try {
 			if (mdpSimple.getNumInitialStates() == 0)
